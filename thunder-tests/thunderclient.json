@@ -1,0 +1,16 @@
+[
+  {
+    "_id": "91d8db25-066a-4f80-8c67-22a371504033",
+    "colId": "d20422a2-88d1-456c-9946-dc87dc53b91d",
+    "containerId": "",
+    "name": "getPlaceDetails_Success",
+    "url": "localhost:8080//place-details/GXvPAor1ifNfpF0U5PTG0w",
+    "method": "GET",
+    "sortNum": 10000,
+    "created": "2023-11-22T19:16:29.917Z",
+    "modified": "2023-11-22T19:38:34.729Z",
+    "headers": [],
+    "params": [],
+    "tests": []
+  }
+]
