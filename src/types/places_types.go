@@ -15,3 +15,14 @@ type WorkingBlock struct {
 	End   string `json:"end"`
 	Type  string `json:"type"` // TODO: Use enums
 }
+
+type PlaceDetailsOut struct {
+	Name         string             `json:"name"`
+	Address      string             `json:"address"`
+	OpeningHours []*OpeningHoursOut `json:"openingHours"`
+}
+
+type OpeningHoursOut struct {
+	Days          []string
+	WorkingBlocks []WorkingBlock
+}
