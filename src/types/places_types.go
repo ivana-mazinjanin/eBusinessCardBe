@@ -19,6 +19,7 @@ type WorkingBlock struct {
 type PlaceDetailsOut struct {
 	Name         string             `json:"name"`
 	Address      string             `json:"address"`
+	IsOpen       bool               `json:"isOpen"`
 	OpeningHours []*OpeningHoursOut `json:"openingHours"`
 }
 

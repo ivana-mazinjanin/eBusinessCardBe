@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -41,6 +43,7 @@ func (p PlacesController) GetPlaceDetails() http.HandlerFunc {
 		out := types.PlaceDetailsOut{
 			Name:         placeDetails.Name,
 			Address:      placeDetails.Address,
+			IsOpen:       isOpen(placeDetails.OpeningHours),
 			OpeningHours: []*types.OpeningHoursOut{},
 		}
 
@@ -66,7 +69,6 @@ func (p PlacesController) GetPlaceDetails() http.HandlerFunc {
 				}
 				out.OpeningHours = append(out.OpeningHours, &newEntry)
 			}
-
 		}
 
 		// prepare response
@@ -104,4 +106,25 @@ func areEqualHours(blocksA []types.WorkingBlock, blocksB []types.WorkingBlock) b
 	}
 
 	return true
+}
+
+func isOpen(openingHours types.OpeningHours) bool {
+	now := time.Now()
+
+	currentDay := strings.ToLower(now.Weekday().String())
+	currentTimeStr := now.Format("15:04")
+
+	blocks := openingHours.Days[currentDay]
+
+	if blocks == nil {
+		return false
+	}
+
+	for _, block := range blocks {
+		if currentTimeStr >= block.Start && currentTimeStr < block.End {
+			return true
+		}
+	}
+
+	return false
 }
