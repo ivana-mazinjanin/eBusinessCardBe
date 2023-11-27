@@ -20,6 +20,7 @@ type PlaceDetailsOut struct {
 	Name         string             `json:"name"`
 	Address      string             `json:"address"`
 	IsOpen       bool               `json:"isOpen"`
+	NextChange   string             `json:"nextChange"`
 	OpeningHours []*OpeningHoursOut `json:"openingHours"`
 }
 

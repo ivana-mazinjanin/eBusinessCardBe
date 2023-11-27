@@ -44,6 +44,7 @@ func (p PlacesController) GetPlaceDetails() http.HandlerFunc {
 			Name:         placeDetails.Name,
 			Address:      placeDetails.Address,
 			IsOpen:       isOpen(placeDetails.OpeningHours),
+			NextChange:   nextChange(placeDetails.OpeningHours),
 			OpeningHours: []*types.OpeningHoursOut{},
 		}
 
@@ -109,7 +110,8 @@ func areEqualHours(blocksA []types.WorkingBlock, blocksB []types.WorkingBlock) b
 }
 
 func isOpen(openingHours types.OpeningHours) bool {
-	now := time.Now()
+	// now := time.Now()
+	now := time.Date(2023, time.Month(11), 27, 18, 35, 30, 0, time.UTC)
 
 	currentDay := strings.ToLower(now.Weekday().String())
 	currentTimeStr := now.Format("15:04")
@@ -127,4 +129,27 @@ func isOpen(openingHours types.OpeningHours) bool {
 	}
 
 	return false
+}
+
+func nextChange(openingHours types.OpeningHours) string {
+	// now := time.Now()
+	now := time.Date(2023, time.Month(11), 27, 18, 35, 30, 0, time.UTC)
+	currentDay := strings.ToLower(now.Weekday().String())
+	currentTimeStr := now.Format("15:04")
+
+	blocks := openingHours.Days[currentDay]
+
+	if blocks == nil {
+		// TODO: ...
+		return ""
+	}
+
+	for _, block := range blocks {
+		if currentTimeStr >= block.Start && currentTimeStr < block.End {
+			return block.End
+		}
+	}
+
+	return ""
+
 }
