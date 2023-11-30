@@ -38,17 +38,18 @@ func (p PlacesController) GetPlaceDetails() http.HandlerFunc {
 			return
 		}
 
+		daysOfWeek := []string{"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"}
+
 		// Read upstream data and prepare response
 		placeDetails, err := readUpstreamResponse(response)
 		out := types.PlaceDetailsOut{
 			Name:         placeDetails.Name,
 			Address:      placeDetails.Address,
 			IsOpen:       isOpen(placeDetails.OpeningHours),
-			NextChange:   nextChange(placeDetails.OpeningHours),
+			NextChange:   nextChange(placeDetails.OpeningHours, daysOfWeek),
 			OpeningHours: []*types.OpeningHoursOut{},
 		}
 
-		daysOfWeek := []string{"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"}
 		for _, dayOfTheWeek := range daysOfWeek {
 
 			a := placeDetails.OpeningHours.Days[dayOfTheWeek]
@@ -131,7 +132,7 @@ func isOpen(openingHours types.OpeningHours) bool {
 	return false
 }
 
-func nextChange(openingHours types.OpeningHours) string {
+func nextChange(openingHours types.OpeningHours, daysOfWeek []string) string {
 	// now := time.Now()
 	now := time.Date(2023, time.Month(11), 27, 18, 35, 30, 0, time.UTC)
 	currentDay := strings.ToLower(now.Weekday().String())
@@ -139,17 +140,39 @@ func nextChange(openingHours types.OpeningHours) string {
 
 	blocks := openingHours.Days[currentDay]
 
-	if blocks == nil {
-		// TODO: ...
-		return ""
-	}
+	if blocks != nil {
+		for _, block := range blocks {
 
-	for _, block := range blocks {
-		if currentTimeStr >= block.Start && currentTimeStr < block.End {
-			return block.End
+			// if restaurtant is open, find closing time
+			if currentTimeStr >= block.Start && currentTimeStr < block.End {
+				return block.End
+			}
+
+			// if next opening block found during current day, return opening time
+			if currentTimeStr < block.Start {
+				return block.Start
+			}
 		}
 	}
 
-	return ""
+	// find next day
+	nextDay := 0
+	for i, day := range daysOfWeek {
+		if currentDay == day {
+			nextDay = (i + 1) % 7
+		}
+	}
+
+	// go day by day as long as next working day is found (needed in case place is closed next day...)
+	var blocksNextDay []types.WorkingBlock = nil
+	for {
+		blocksNextDay = openingHours.Days[daysOfWeek[nextDay]]
+		if blocksNextDay != nil {
+			break
+		}
+		nextDay = (nextDay + 1) % 7
+	}
+
+	return blocksNextDay[0].Start
 
 }
